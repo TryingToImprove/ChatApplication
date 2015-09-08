@@ -1,0 +1,1 @@
+java -cp CouseAssignment.Chat.jar couseassignment.utils.Client 6060 localhost
