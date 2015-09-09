@@ -29,6 +29,7 @@ public class ChatServer {
     private final List<ChatConnection> connections = new ArrayList<>();
     private ServerSocket serverSocket;
     private boolean isRunning;
+    private Logger logger;
 
     public ChatServer(String address, int port) {
         this.address = address;
@@ -54,11 +55,13 @@ public class ChatServer {
                         connections.add(chatConnection);
                     }
                 } catch (SocketException socketEx) {
-                    System.out.println("Timeout");
+                    // Do nothing
                 }
             }
         } catch (IOException ex) {
-            Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, null, ex);
+            if (logger != null) {
+                logger.log(Level.SEVERE, null, ex);
+            }
         }
     }
 
@@ -107,11 +110,25 @@ public class ChatServer {
     public void stop() {
         if (serverSocket != null && isRunning) {
             try {
+                for(ChatConnection connection : connections){
+                    connection.stop();
+                }
+                
                 isRunning = false;
                 serverSocket.close();
             } catch (IOException ex) {
-                Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, null, ex);
+                if (logger != null) {
+                    logger.log(Level.SEVERE, null, ex);
+                }
             }
         }
+    }
+
+    public void attachLogger(Logger logger) {
+        this.logger = logger;
+    }
+
+    Logger getLogger() {
+        return this.logger;
     }
 }
