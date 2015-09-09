@@ -4,10 +4,10 @@
  * and open the template in the editor.
  */
 
-
 import couseassignment.chat.ChatClient;
 import couseassignment.chat.ChatResponse;
 import java.awt.CardLayout;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -71,8 +71,9 @@ public class Application extends javax.swing.JFrame implements Observer {
         userListScrollPane = new javax.swing.JScrollPane();
         userList = new javax.swing.JList();
         chatPanel = new javax.swing.JPanel();
-        jScrollPane1 = new javax.swing.JScrollPane();
+        chatMessagesScrollPane = new javax.swing.JScrollPane();
         chatMessagesPanel = new javax.swing.JPanel();
+        chatMessagesItemsPanel = new javax.swing.JPanel();
         chatFormPanel = new javax.swing.JPanel();
         messageScrollPane = new javax.swing.JScrollPane();
         txtMessage = new javax.swing.JTextArea();
@@ -138,10 +139,16 @@ public class Application extends javax.swing.JFrame implements Observer {
         chatPanel.setMinimumSize(new java.awt.Dimension(400, 27));
         chatPanel.setLayout(new javax.swing.BoxLayout(chatPanel, javax.swing.BoxLayout.PAGE_AXIS));
 
-        chatMessagesPanel.setLayout(new javax.swing.BoxLayout(chatMessagesPanel, javax.swing.BoxLayout.PAGE_AXIS));
-        jScrollPane1.setViewportView(chatMessagesPanel);
+        chatMessagesScrollPane.setBorder(null);
 
-        chatPanel.add(jScrollPane1);
+        chatMessagesPanel.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 0, 0));
+
+        chatMessagesItemsPanel.setLayout(new javax.swing.BoxLayout(chatMessagesItemsPanel, javax.swing.BoxLayout.PAGE_AXIS));
+        chatMessagesPanel.add(chatMessagesItemsPanel);
+
+        chatMessagesScrollPane.setViewportView(chatMessagesPanel);
+
+        chatPanel.add(chatMessagesScrollPane);
 
         chatFormPanel.setMaximumSize(new java.awt.Dimension(32846, 150));
         chatFormPanel.setLayout(new javax.swing.BoxLayout(chatFormPanel, javax.swing.BoxLayout.LINE_AXIS));
@@ -239,11 +246,12 @@ public class Application extends javax.swing.JFrame implements Observer {
     private javax.swing.JButton btnSendMessage;
     private javax.swing.JPanel buttonContainerPanel;
     private javax.swing.JPanel chatFormPanel;
+    private javax.swing.JPanel chatMessagesItemsPanel;
     private javax.swing.JPanel chatMessagesPanel;
+    private javax.swing.JScrollPane chatMessagesScrollPane;
     private javax.swing.JPanel chatPanel;
     private javax.swing.JPanel chatWindow;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane messageScrollPane;
     private javax.swing.JPanel sidebarPanel;
     private javax.swing.JTextArea txtMessage;
@@ -272,17 +280,18 @@ public class Application extends javax.swing.JFrame implements Observer {
                     break;
                 case "MSG":
                     JPanel messageItem = new JPanel();
+                    messageItem.setLayout(new FlowLayout(FlowLayout.LEFT));
 
-                    JLabel lblUsername = new JLabel((String) response.getParameter("sender"));
+                    JLabel lblUsername = new JLabel(((String) response.getParameter("sender")) + ":");
                     lblUsername.setFont(new java.awt.Font("Tahoma", 1, 13));
                     messageItem.add(lblUsername);
 
                     JLabel lblMessage = new JLabel((String) response.getParameter("message"));
                     messageItem.add(lblMessage);
 
-                    chatMessagesPanel.add(messageItem);
-                    chatMessagesPanel.revalidate();
-                    chatMessagesPanel.repaint();
+                    chatMessagesItemsPanel.add(messageItem);
+                    chatMessagesItemsPanel.revalidate();
+                    chatMessagesItemsPanel.repaint();
                     break;
             }
         }
