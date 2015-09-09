@@ -15,11 +15,13 @@ import org.junit.Test;
  */
 public class ChatMessageInputParserTest {
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void testShouldThrowExceptionIfCommandNotFound() {
+    @Test
+    public void testShouldReturnNullIfCommandNotFound() {
         String message = "FailureCommand#Stuff";
 
         ParseResult result = ChatMessageInputParser.parse(message);
+
+        Assert.assertNull(result);
     }
 
     @Test

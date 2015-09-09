@@ -7,10 +7,12 @@
 <!-- the Compile on Save feature is turned off for the project. -->
 <!-- You can turn off the Compile on Save (or Deploy on Save) setting -->
 <!-- in the project's Project Properties dialog box.-->
-<project name="CouseAssignment.Chat" default="default" basedir=".">
-    <description>Builds, tests, and runs the project CouseAssignment.Chat.</description>
+<project name="CouseAssignment.Chat.Server" default="default" basedir=".">
+    <description>Builds, tests, and runs the project CouseAssignment.Chat.Server.</description>
     <import file="nbproject/build-impl.xml"/>
-        <!--
+    <target name="-post-compile">
+        <copy file="startServer.bat" todir="${dist.dir}"/>
+    </target><!--
 
     There exist several targets which are by default empty and which can be 
     used for execution of your tasks. These targets are usually executed 
@@ -58,7 +60,7 @@
 
     An example of overriding the target for project execution could look like this:
 
-        <target name="run" depends="CouseAssignment.Chat-impl.jar">
+        <target name="run" depends="CouseAssignment.Chat.Server-impl.jar">
             <exec dir="bin" executable="launcher.exe">
                 <arg file="${dist.jar}"/>
             </exec>

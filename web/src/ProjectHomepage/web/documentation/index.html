@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>ChatProject</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="../style.css" type="text/css"/>
+
+    </head>
+    <body>
+        <div class="container container--large">
+            <main class="content content--main">
+                <h1 class="header--main">Documentation</h1>
+
+                <p>
+                    This is the documentation for the application. The code can be found here <a href="#">http://github.com/TryingToImprove/ChatApplication</a>
+                </p>
+
+                <h2>Clients</h2>
+                <p>
+                    The clients implements <span class="code code--item">Closeable</span> which means the clients must be closed.
+                </p>
+
+                <p>
+                    To create a new client simply java library to your project and instantiate a new 
+                    <span class="code code--item">ChatClient</span> with the server address and port, and
+                    call <span class="code code--method">connect()</span>
+                </p>
+
+                <code>try(ChatClient client = new ChatClient("localhost", 9090)) { client.connect(); }</code>
+
+                <h3>Adding observers</h3>
+                <p>
+                    To make your UI handle incoming messages from the client you 
+                    need to add a observer to your <span class="code code--item">ChatClient</span>
+                </p>
+
+                <p>
+                    The observer must implements <span class="code code--item">java.Observer</span>
+                </p>
+
+                <code>client.addObserver(new MyCustomObserver());</code>
+
+                <p>
+                    The returned <span class="code code--item">arg</span> is of type <a href="#protocol-observerResponse" class="code code--item">ChatResponse</a>
+                </p>
+
+                <h3>Sending protocol messages</h3>
+                <p>
+                    When a client is connected it is possible to send messages. The
+                    client follow the specified protocol, and the first messages
+                    is required to be a <span class="code code--protocol">USER#{username}</span>
+                    message
+                </p>
+
+                <code>client.send(message)</code>
+
+                <h2>Server</h2>
+                <p>
+                    The server will handle all the connected users and message.
+                </p>
+
+                <p>
+                    To create a server simply add the java library to your project and instantie a new <span class="code code--item">ChatServer</span> with the 
+                    server address and port and call <span class="code code--method">start()</span>
+                </p>
+
+                <code>ChatServer server = new ChatServer("localhost", 9090); server.start()</code>
+                
+                <p>
+                    The <span class="code code--method">start()</span> will be a blocking call!
+                </p>
+                
+                <h2>Protocol</h2>
+                <p>
+                    Both the server and client follows the protocol specified, which makes
+                    it possible to initialize a connection, message to every connected user or to a set of 
+                    users
+                </p>
+
+                <h3>Connecting</h3>
+                <p>
+                    The first message sent to the server is the username of the connected user. 
+                </p>
+                <p>
+                    <b>REQUEST:</b> <span class="code code--protocol">USER#{username}</span><br />
+                    <b>RESPONSE:</b> <span class="code code--protocol">USERLIST#{username1},{username2}..</span>
+                </p>
+
+                <h3>Sending messages</h3>
+                <p>
+                    It is possible to send messages to a set of connected users or to everyone.
+                </p>
+                <p>
+                    Every recipient of the message will get the response
+                </p>
+                <h4>Send to everyone</h4>
+                <p>
+                    <b>REQUEST:</b> <span class="code code--protocol">MSG#*#{message}</span><br />
+                    <b>RESPONSE:</b> <span class="code code--protocol">MSG#{senderUsername}#{message}</span>
+                </p>
+                <h4>Send to single or a set of users</h4>
+                <p>
+                    <b>REQUEST:</b> <span class="code code--protocol">MSG#{username1},{username2}#{message}</span><br />
+                    <b>RESPONSE:</b> <span class="code code--protocol">MSG#{senderUsername}#{message}</span>
+                </p>
+
+                <h2 id="protocol-observerResponse"><span class="code code--item">ChatResponse</span></h2>
+                <p>
+                    Every time the observers are notified they will get a <span class="code code--item">ChatResponse</span>, which have 2 methods.
+                </p>
+
+                <h3><span class="code code--method">getCommand()</span></h3>
+                <p>
+                    <span class="code code--method">getCommand()</span> returns the type of the command
+                    the observer should handle. Can be <span class="code code--protocol">USERLIST</span> or
+                    <span class="code code--protocol">MSG</span>
+                </p>
+
+                <h3><span class="code code--method">getParameter(String parameterName)</span></h3>
+                <p>
+                    According to the <span class="code code--protocol">command</span> there is different parameters</p>
+
+                <h4><span class="code code--protocol">USERLIST</span></h4>
+                <p>
+                    <span class="code code--parameter">users</span> returns an <span class="code code--item">String[]</span> with the connected users
+                </p>
+                <h4><span class="code code--protocol">MSG</span></h4>
+                <p>
+                    <span class="code code--parameter">recipients</span> returns an <span class="code code--item">String[]</span> with the recipents, if 
+                    message is sent to everyone this will be <span class="code code--item">null</span>
+                </p>
+                <p>
+                    <span class="code code--parameter">message</span> returns an <span class="code code--item">String</span> with the message
+                </p>
+            </main>
+
+            <footer class="content content--footer">
+                Developed by Oliver (DAT B)
+            </footer>
+    </body>
+</html>
