@@ -101,7 +101,9 @@ public class ChatServer {
         String[] users = new String[connections.size()];
 
         for (int i = 0; i < connections.size(); i++) {
-            users[i] = connections.get(i).getUsername();
+            if (connections.get(i).getUsername() != null) {
+                users[i] = connections.get(i).getUsername();
+            }
         }
 
         return users;
@@ -110,10 +112,10 @@ public class ChatServer {
     public void stop() {
         if (serverSocket != null && isRunning) {
             try {
-                for(ChatConnection connection : connections){
+                for (ChatConnection connection : connections) {
                     connection.stop();
                 }
-                
+
                 isRunning = false;
                 serverSocket.close();
             } catch (IOException ex) {

@@ -7,6 +7,7 @@
 import couseassignment.chat.ChatClient;
 import couseassignment.chat.ChatResponse;
 import java.awt.CardLayout;
+import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.WindowAdapter;
@@ -18,7 +19,7 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.BoxLayout;
+import javafx.scene.input.KeyCode;
 import javax.swing.DefaultListModel;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -30,6 +31,7 @@ import javax.swing.JPanel;
 public class Application extends javax.swing.JFrame implements Observer {
 
     private final ChatClient client;
+    private final String DEFAULT_MESSAGE = "Write your message here";
 
     /**
      * Creates new form Application
@@ -81,6 +83,7 @@ public class Application extends javax.swing.JFrame implements Observer {
         btnSendMessage = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("ChatProject");
         setBackground(new java.awt.Color(251, 251, 251));
 
         viewSwitcher.setLayout(new java.awt.CardLayout());
@@ -129,7 +132,20 @@ public class Application extends javax.swing.JFrame implements Observer {
         sidebarPanel.setPreferredSize(new java.awt.Dimension(250, 558));
         sidebarPanel.setLayout(new java.awt.BorderLayout());
 
+        userListScrollPane.setBorder(null);
+
+        userList.setBackground(new java.awt.Color(102, 102, 102));
+        userList.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        userList.setFont(new java.awt.Font("Open Sans", 0, 14)); // NOI18N
+        userList.setForeground(new java.awt.Color(255, 255, 255));
+        userList.setModel(new javax.swing.AbstractListModel() {
+            String[] strings = { "Everyone" };
+            public int getSize() { return strings.length; }
+            public Object getElementAt(int i) { return strings[i]; }
+        });
+        userList.setFocusable(false);
         userList.setName(""); // NOI18N
+        userList.setSelectedIndex(0);
         userListScrollPane.setViewportView(userList);
 
         sidebarPanel.add(userListScrollPane, java.awt.BorderLayout.CENTER);
@@ -140,7 +156,11 @@ public class Application extends javax.swing.JFrame implements Observer {
         chatPanel.setLayout(new javax.swing.BoxLayout(chatPanel, javax.swing.BoxLayout.PAGE_AXIS));
 
         chatMessagesScrollPane.setBorder(null);
+        chatMessagesScrollPane.setAutoscrolls(true);
 
+        chatMessagesPanel.setBackground(new java.awt.Color(235, 242, 255));
+        chatMessagesPanel.setAutoscrolls(true);
+        chatMessagesPanel.setOpaque(false);
         chatMessagesPanel.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 0, 0));
 
         chatMessagesItemsPanel.setLayout(new javax.swing.BoxLayout(chatMessagesItemsPanel, javax.swing.BoxLayout.PAGE_AXIS));
@@ -150,12 +170,37 @@ public class Application extends javax.swing.JFrame implements Observer {
 
         chatPanel.add(chatMessagesScrollPane);
 
+        chatFormPanel.setBackground(new java.awt.Color(204, 204, 204));
         chatFormPanel.setMaximumSize(new java.awt.Dimension(32846, 150));
         chatFormPanel.setLayout(new javax.swing.BoxLayout(chatFormPanel, javax.swing.BoxLayout.LINE_AXIS));
 
+        messageScrollPane.setBorder(null);
+        messageScrollPane.setOpaque(false);
+        messageScrollPane.setPreferredSize(new java.awt.Dimension(246, 50));
+
         txtMessage.setColumns(20);
         txtMessage.setFont(new java.awt.Font("Open Sans", 0, 13)); // NOI18N
-        txtMessage.setRows(5);
+        txtMessage.setLineWrap(true);
+        txtMessage.setRows(1);
+        txtMessage.setTabSize(0);
+        txtMessage.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                txtMessageFocusLost(evt);
+            }
+        });
+        txtMessage.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                txtMessageMouseClicked(evt);
+            }
+        });
+        txtMessage.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                txtMessageKeyPressed(evt);
+            }
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                txtMessageKeyReleased(evt);
+            }
+        });
         messageScrollPane.setViewportView(txtMessage);
 
         chatFormPanel.add(messageScrollPane);
@@ -163,10 +208,15 @@ public class Application extends javax.swing.JFrame implements Observer {
         buttonContainerPanel.setMaximumSize(new java.awt.Dimension(240, 150));
         buttonContainerPanel.setMinimumSize(new java.awt.Dimension(240, 0));
         buttonContainerPanel.setName(""); // NOI18N
+        buttonContainerPanel.setOpaque(false);
         buttonContainerPanel.setPreferredSize(new java.awt.Dimension(100, 0));
         buttonContainerPanel.setLayout(new java.awt.BorderLayout());
 
+        btnSendMessage.setBackground(javax.swing.UIManager.getDefaults().getColor("Button.light"));
+        btnSendMessage.setFont(new java.awt.Font("Open Sans", 0, 18)); // NOI18N
         btnSendMessage.setText("Send");
+        btnSendMessage.setBorder(null);
+        btnSendMessage.setContentAreaFilled(false);
         btnSendMessage.setMaximumSize(new java.awt.Dimension(40, 25));
         btnSendMessage.setMinimumSize(new java.awt.Dimension(40, 25));
         btnSendMessage.setPreferredSize(new java.awt.Dimension(40, 25));
@@ -200,44 +250,49 @@ public class Application extends javax.swing.JFrame implements Observer {
 
         CardLayout cardLayout = (CardLayout) viewSwitcher.getLayout();
         cardLayout.show(viewSwitcher, "chat");
+        
+
+        resetTextMessage();
     }//GEN-LAST:event_btnAuthenticateActionPerformed
 
     private void btnSendMessageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSendMessageActionPerformed
-        String message = txtMessage.getText();
+        sendMessage();
+    }//GEN-LAST:event_btnSendMessageActionPerformed
 
-        List<String> receivers = new ArrayList<>();
-
-        boolean isUser = false;
-        List<String> username = new ArrayList<>();
-        int i = 0;
-        while (i < message.length()) {
-            char c = message.charAt(i);
-
-            if (isUser && c != ' ') {
-                username.add(Character.toString(c));
-            }
-
-            switch (c) {
-                case '@':
-                    isUser = true;
-                    break;
-                case ' ':
-                    if (!username.isEmpty()) {
-                        receivers.add(String.join("", username));
-                    }
-                    username.clear();
-                    isUser = false;
-                    break;
-            }
-            i++;
+    private void txtMessageKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtMessageKeyPressed
+        if (evt.getKeyCode() == 10) {
+            //    sendMessage();
         }
 
-        String receiver = receivers.isEmpty() ? "*" : String.join(",", receivers);
+        handleDefaultMessage();
+    }//GEN-LAST:event_txtMessageKeyPressed
 
-        this.client.send("MSG#" + receiver + "#" + txtMessage.getText());
+    private void txtMessageMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_txtMessageMouseClicked
+        handleDefaultMessage();
+    }//GEN-LAST:event_txtMessageMouseClicked
 
-        txtMessage.setText("");
-    }//GEN-LAST:event_btnSendMessageActionPerformed
+    private void txtMessageFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtMessageFocusLost
+
+        String message = txtMessage.getText();
+
+        if (message.equals("")) {
+            resetTextMessage();
+        }
+    }//GEN-LAST:event_txtMessageFocusLost
+
+    private void txtMessageKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtMessageKeyReleased
+
+    }//GEN-LAST:event_txtMessageKeyReleased
+
+    private void handleDefaultMessage() {
+        String message = txtMessage.getText();
+
+        if (message.equals(DEFAULT_MESSAGE)) {
+            txtMessage.setText("");
+            txtMessage.setFont(new java.awt.Font("Open Sans", 0, 14));
+            txtMessage.setForeground(Color.black);
+        }
+    }
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -263,37 +318,76 @@ public class Application extends javax.swing.JFrame implements Observer {
 
     @Override
     public void update(Observable o, Object arg) {
+        if (arg == null) {
+            return;
+        }
+
         if (o.getClass() == ChatClient.class) {
             ChatResponse response = (ChatResponse) arg;
 
             switch (response.getCommand()) {
                 case "USERLIST":
+                    int[] selectedIndicies = userList.getSelectedIndices();
+
                     DefaultListModel model = new DefaultListModel();
+                    model.add(0, "Everyone");
+
                     String[] users = (String[]) response.getParameter("users");
                     for (int i = 0; i < users.length; i++) {
-                        model.add(i, users[i]);
+                        model.add(i + 1, users[i]);
                     }
 
                     userList.setModel(model);
                     userList.revalidate();
                     userList.repaint();
+
+                    userList.setSelectedIndices(selectedIndicies);
                     break;
                 case "MSG":
                     JPanel messageItem = new JPanel();
                     messageItem.setLayout(new FlowLayout(FlowLayout.LEFT));
-
                     JLabel lblUsername = new JLabel(((String) response.getParameter("sender")) + ":");
-                    lblUsername.setFont(new java.awt.Font("Tahoma", 1, 13));
+                    lblUsername.setFont(new java.awt.Font("Open Sans", 1, 13));
                     messageItem.add(lblUsername);
 
-                    JLabel lblMessage = new JLabel((String) response.getParameter("message"));
+                    String message = (String) response.getParameter("message");
+                    message = message.replaceAll("\n", "<br />");
+                    JLabel lblMessage = new JLabel("<html>" + message);
                     messageItem.add(lblMessage);
 
                     chatMessagesItemsPanel.add(messageItem);
+
                     chatMessagesItemsPanel.revalidate();
                     chatMessagesItemsPanel.repaint();
                     break;
             }
         }
+    }
+
+    private void resetTextMessage() {
+        txtMessage.setText(DEFAULT_MESSAGE);
+        txtMessage.setFont(new Font("Open Sans", 1, 14));
+        txtMessage.setForeground(Color.darkGray);
+        txtMessage.requestFocus();
+    }
+
+    private void sendMessage() {
+        String message = txtMessage.getText();
+
+        if (message.equals("") || message.equals(DEFAULT_MESSAGE)) {
+            return;
+        }
+
+        String receivers;
+        List<String> selectedUsers = userList.getSelectedValuesList();
+        if (selectedUsers.contains("Everyone")) {
+            receivers = "*";
+        } else {
+            receivers = String.join(",", selectedUsers);
+        }
+
+        this.client.send("MSG#" + receivers + "#" + message);
+
+        resetTextMessage();
     }
 }
