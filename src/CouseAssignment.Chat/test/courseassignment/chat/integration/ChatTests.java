@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package courseassignment.integration;
+package courseassignment.chat.integration;
 
 import couseassignment.chat.ChatServer;
 import java.io.BufferedReader;
@@ -72,10 +72,13 @@ public class ChatTests {
                     try (BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
                         try (PrintWriter writer = new PrintWriter(socket.getOutputStream(), true)) {
                             writer.println("USER#" + connectionName);
-                            String userList = reader.readLine(); // Returns the user list
 
-                            String response = reader.readLine();
-                            Assert.assertEquals("MSG#*#tesddt", response);
+                            String response;
+                            do {
+                                response = reader.readLine();
+                            } while (!response.startsWith("MSG#"));
+
+                            Assert.assertEquals("MSG#Oliver#test", response);
                         }
                     }
                 } catch (IOException ex) {
@@ -87,17 +90,19 @@ public class ChatTests {
             connections[i] = connection;
         }
 
+        Thread.sleep(1500);
+
         try (Socket socket = createConnection()) {
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
                 try (PrintWriter writer = new PrintWriter(socket.getOutputStream(), true)) {
                     writer.println("USER#Oliver");
-                    reader.readLine();
+                    String userList = reader.readLine();
 
                     writer.println("MSG#*#test");
                 }
             }
         }
-        
+
         for (Thread connection : connections) {
             connection.join();
         }

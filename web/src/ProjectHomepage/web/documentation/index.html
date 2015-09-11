@@ -66,11 +66,19 @@
                 </p>
 
                 <code>ChatServer server = new ChatServer("localhost", 9090); server.start()</code>
-                
+
                 <p>
                     The <span class="code code--method">start()</span> will be a blocking call!
                 </p>
                 
+                <h3>Starting the server from the JAR</h3>
+                <p>
+                    You can start the server from the JAR file by executing following command in cmd
+                </p>
+
+                <code>java -cp CouseAssignment.Chat.Server.jar Server 6060 localhost</code>
+
+
                 <h2>Protocol</h2>
                 <p>
                     Both the server and client follows the protocol specified, which makes
@@ -132,6 +140,32 @@
                 </p>
                 <p>
                     <span class="code code--parameter">message</span> returns an <span class="code code--item">String</span> with the message
+                </p>
+
+                <h2>Test</h2>
+                <p>
+                    All tests passed, but it was hard to tests the connections and threads, because some connections was still receiving <span class="code code--protocol">USERLIST#</span> when some
+                    already had got the <span class="code code--protocol">MSG#</span>
+                </p>
+
+                <img src="testsuite.PNG" alt="Picture of testsuite">
+
+                <h2>About the application</h2>
+
+                <img style="max-width: 100%" src="application.PNG" alt="Picture of the application">
+
+                <p>
+                    The chat applications listens to responses from the <span class="code code--item">ChatClient</span> which then can update the GUI.
+                </p>
+                <p>
+                    When a new user connects the entire userlist updates with the newest users. Because of the list works in the server, the users will <u>always</u> be at the same index and therefor it will work
+                </p>
+
+                <h3>Sending messages</h3>
+                <p>
+                    The userlist is a clickable/selectable list, which the users selected will be the one who get the messages. You can also choose "Everyone" which 
+                    sends the message to everyone
+                </p>
                 </p>
             </main>
 

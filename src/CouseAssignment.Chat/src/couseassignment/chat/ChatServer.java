@@ -113,7 +113,7 @@ public class ChatServer {
         if (serverSocket != null && isRunning) {
             try {
                 for (ChatConnection connection : connections) {
-                    connection.stop();
+    //                connection.stop();
                 }
 
                 isRunning = false;

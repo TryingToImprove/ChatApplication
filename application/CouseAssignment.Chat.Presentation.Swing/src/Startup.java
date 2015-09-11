@@ -39,7 +39,7 @@ public class Startup {
             public void run() {
 
                 try {
-                    ChatClient client = new ChatClient("localhost", 6060);
+                    ChatClient client = new ChatClient("cph-ol24.cloudapp.net", 6655);
                     client.connect();
 
                     Application application = new Application(client);
